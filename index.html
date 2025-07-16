@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <title>Metro Catholic Late Attendance</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-      background-color: #f2f2f2;
+      background-color: #f4f4f4;
       padding: 40px;
       display: flex;
       justify-content: center;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.95);
+      background: #fff;
       border-radius: 15px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       padding: 30px;
@@ -67,10 +67,6 @@
       margin-top: 10px;
     }
 
-    .button-group button {
-      flex: 1;
-    }
-
     .form-section {
       display: none;
       margin-top: 20px;
@@ -83,34 +79,37 @@
       color: green;
       text-align: center;
     }
+
+    #reader {
+      width: 100%;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- ✅ Make sure this file exists in your project folder -->
     <img src="metro-logo.png" alt="Metro Catholic Logo" class="logo" />
-
     <h1>Late Attendance Check-In</h1>
 
     <label>Select your grade group:</label>
     <div class="button-group">
-      <button onclick="showForm('k2')">Grades K–2</button>
+      <button onclick="showForm('prek2')">Pre-K–2</button>
       <button onclick="showForm('3to8')">Grades 3–8</button>
     </div>
 
-    <!-- Grades K–2 -->
-    <div id="k2Form" class="form-section">
-      <h2>QR Code Check-In</h2>
-      <p>Scan your QR code on the iPad, then tap below:</p>
-      <button onclick="checkInFromQR()">Check In Now</button>
+    <!-- Pre-K to 2 QR Scanner -->
+    <div id="prek2Form" class="form-section">
+      <h2>Pre-K–2 Check-In</h2>
+      <button onclick="startScanner()">Start QR Scanner</button>
+      <div id="reader"></div>
     </div>
 
-    <!-- Grades 3–8 -->
+    <!-- Grades 3–8 Manual Check-In -->
     <div id="form3to8" class="form-section">
-      <h2>Manual Check-In</h2>
+      <h2>Grades 3–8 Check-In</h2>
       <form id="checkinForm">
         <label for="name">Full Name:</label>
-        <input type="text" id="name" placeholder="Start typing your name..." required />
+        <input type="text" id="name" required />
 
         <label for="email">Select Your Email:</label>
         <select id="email" required>
@@ -130,12 +129,11 @@
       { name: "Emily Davis", email: "emily.davis@metrocatholic.net" },
       { name: "Liam Johnson", email: "liam.johnson@metrocatholic.net" },
       { name: "Olivia Brown", email: "olivia.brown@metrocatholic.net" },
-      { name: "Ethan Wilson", email: "ethan.wilson@metrocatholic.net" },
-      // Add more students here
+      { name: "Ethan Wilson", email: "ethan.wilson@metrocatholic.net" }
     ];
 
     function showForm(group) {
-      document.getElementById("k2Form").style.display = group === "k2" ? "block" : "none";
+      document.getElementById("prek2Form").style.display = group === "prek2" ? "block" : "none";
       document.getElementById("form3to8").style.display = group === "3to8" ? "block" : "none";
       document.getElementById("status").innerText = "";
     }
@@ -146,13 +144,9 @@
     nameInput.addEventListener("input", function () {
       const inputValue = this.value.toLowerCase();
       emailSelect.innerHTML = '<option value="">-- Select --</option>';
+      if (!inputValue) return;
 
-      if (inputValue.length === 0) return;
-
-      const filtered = students.filter(student =>
-        student.name.toLowerCase().includes(inputValue)
-      );
-
+      const filtered = students.filter(s => s.name.toLowerCase().includes(inputValue));
       filtered.forEach(student => {
         const option = document.createElement("option");
         option.value = student.email;
@@ -161,42 +155,39 @@
       });
     });
 
-    function checkInFromQR() {
-      const params = new URLSearchParams(window.location.search);
-      const kid = params.get("kid");
-
-      if (!kid) {
-        alert("No QR code found. Please scan a valid code.");
-        return;
-      }
-
-      const timestamp = new Date().toISOString();
-
-      // Replace with your real backend URL
-      fetch("https://your-backend.com/k2-checkin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kid, timestamp })
-      })
-      .then(() => document.getElementById("status").innerText = "Check-in complete!")
-      .catch(() => document.getElementById("status").innerText = "Error logging check-in.");
-    }
-
     document.getElementById("checkinForm")?.addEventListener("submit", function (e) {
       e.preventDefault();
       const name = nameInput.value.trim();
       const email = emailSelect.value.trim();
       const timestamp = new Date().toISOString();
 
-      // Replace with your real backend URL
-      fetch("https://your-backend.com/3to8-checkin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, timestamp })
-      })
-      .then(() => document.getElementById("status").innerText = "Check-in complete!")
-      .catch(() => document.getElementById("status").innerText = "Error logging check-in.");
+      console.log("Checked in:", { name, email, timestamp });
+      document.getElementById("status").innerText = "Check-in complete!";
     });
+
+    function startScanner() {
+      const qrReader = new Html5Qrcode("reader");
+      qrReader.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        (qrCodeMessage) => {
+          const timestamp = new Date().toISOString();
+          console.log("Scanned Pre-K–2 code:", qrCodeMessage, timestamp);
+          qrReader.stop();
+          document.getElementById("reader").innerHTML = "";
+          new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3").play();
+          document.getElementById("status").innerText = "Check-in complete!";
+        },
+        (errorMessage) => {
+          // optional: console.log("QR scan error:", errorMessage);
+        }
+      ).catch(err => {
+        document.getElementById("status").innerText = "Camera access denied or unavailable.";
+      });
+    }
   </script>
 </body>
 </html>
