@@ -2,218 +2,131 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Metro Catholic Late Attendance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metro Catholic Late Check-In</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
   <style>
-    html, body {
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #f0f4f8, #d9e2ec);
       margin: 0;
       padding: 0;
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f4;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
-      overflow-x: hidden;
+      height: 100vh;
     }
-
     .container {
       background: #fff;
-      border-radius: 15px;
+      padding: 2rem;
+      border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      padding: 30px;
-      width: 100%;
-      max-width: 800px;
-      min-height: 80vh;
-      text-align: center;
-      box-sizing: border-box;
+      width: 95%;
+      max-width: 600px;
     }
-
-    .logo {
-      max-width: 220px;
-      margin-bottom: 20px;
-    }
-
     h1 {
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-      text-align: left;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 8px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 18px;
-    }
-
-    button {
-      background-color: #2e86de;
-      color: white;
-      border: none;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #1b4f72;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .form-section {
-      display: none;
-      margin-top: 20px;
-      text-align: left;
-    }
-
-    #status {
-      margin-top: 20px;
-      font-weight: bold;
-      color: green;
       text-align: center;
+      color: #003366;
+      font-size: 1.8rem;
     }
-
-    #reader {
+    label {
+      font-weight: 600;
+      margin-top: 1rem;
+      display: block;
+    }
+    select, input[type="text"], textarea {
       width: 100%;
-      height: auto;
-      margin-top: 20px;
+      padding: 0.7rem;
+      font-size: 1rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
-
-    .homescreen-tip {
-      font-size: 14px;
-      color: #555;
-      margin-top: 10px;
+    textarea {
+      resize: vertical;
+    }
+    button {
+      margin-top: 1.5rem;
+      background-color: #003366;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #0055a5;
     }
   </style>
 </head>
-<body onload="scrollTo(0,1)">
+<body>
   <div class="container">
-    <img src="metro-logo.png" alt="Metro Catholic Logo" class="logo" />
-    <h1>Late Attendance Check-In</h1>
+    <h1>Metro Catholic Late Check-In</h1>
 
-    <div class="homescreen-tip">
-      Tip: Tap the share icon ↗️ and choose <strong>"Add to Home Screen"</strong> for full-screen mode.
-    </div>
+    <form id="checkinForm">
+      <label for="grade">Select Your Grade</label>
+      <select id="grade" required>
+        <option value="">-- Select Grade --</option>
+        <option value="Pre-K">Pre-K</option>
+        <option value="K">K</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+      </select>
 
-    <label>Select your grade group:</label>
-    <div class="button-group">
-      <button onclick="showForm('prek2')">Pre-K–2</button>
-      <button onclick="showForm('3to8')">Grades 3–8</button>
-    </div>
+      <label for="studentName">Your Name</label>
+      <input list="nameList" id="studentName" name="studentName" autocomplete="off" required>
+      <datalist id="nameList">
+        <!-- Sample names -->
+        <option value="John Smith">
+        <option value="Maria Gonzalez">
+        <option value="Liam Johnson">
+      </datalist>
 
-    <!-- Pre-K to 2 QR Scanner -->
-    <div id="prek2Form" class="form-section">
-      <h2>Pre-K–2 Check-In</h2>
-      <button onclick="startScanner()">Start QR Scanner</button>
-      <div id="reader"></div>
-    </div>
+      <label for="studentEmail">Email</label>
+      <input type="text" id="studentEmail" name="studentEmail" readonly placeholder="Auto-filled based on name">
 
-    <!-- Grades 3–8 Manual Check-In -->
-    <div id="form3to8" class="form-section">
-      <h2>Grades 3–8 Check-In</h2>
-      <form id="checkinForm">
-        <label for="name">Full Name:</label>
-        <input type="text" id="name" required />
+      <label for="reason">Reason for being late</label>
+      <textarea id="reason" name="reason" rows="3" required></textarea>
 
-        <label for="email">Select Your Email:</label>
-        <select id="email" required>
-          <option value="">-- Select --</option>
-        </select>
-
-        <button type="submit">Submit</button>
-      </form>
-    </div>
-
-    <p id="status"></p>
+      <button type="submit">Submit</button>
+    </form>
   </div>
 
   <script>
-    const students = [
-      { name: "John Smith", email: "john.smith@metrocatholic.net" },
-      { name: "Emily Davis", email: "emily.davis@metrocatholic.net" },
-      { name: "Liam Johnson", email: "liam.johnson@metrocatholic.net" },
-      { name: "Olivia Brown", email: "olivia.brown@metrocatholic.net" },
-      { name: "Ethan Wilson", email: "ethan.wilson@metrocatholic.net" }
-    ];
+    const nameToEmail = {
+      "John Smith": "jsmith@metrocatholic.net",
+      "Maria Gonzalez": "mgonzalez@metrocatholic.net",
+      "Liam Johnson": "ljohnson@metrocatholic.net"
+    };
 
-    function showForm(group) {
-      document.getElementById("prek2Form").style.display = group === "prek2" ? "block" : "none";
-      document.getElementById("form3to8").style.display = group === "3to8" ? "block" : "none";
-      document.getElementById("status").innerText = "";
-    }
-
-    const nameInput = document.getElementById("name");
-    const emailSelect = document.getElementById("email");
-
-    nameInput.addEventListener("input", function () {
-      const inputValue = this.value.toLowerCase();
-      emailSelect.innerHTML = '<option value="">-- Select --</option>';
-      if (!inputValue) return;
-
-      const filtered = students.filter(s => s.name.toLowerCase().includes(inputValue));
-      filtered.forEach(student => {
-        const option = document.createElement("option");
-        option.value = student.email;
-        option.textContent = student.email;
-        emailSelect.appendChild(option);
-      });
+    document.getElementById('studentName').addEventListener('input', function () {
+      const name = this.value;
+      document.getElementById('studentEmail').value = nameToEmail[name] || '';
     });
 
-    document.getElementById("checkinForm")?.addEventListener("submit", function (e) {
+    document.getElementById('checkinForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      const name = nameInput.value.trim();
-      const email = emailSelect.value.trim();
-      const timestamp = new Date().toISOString();
-
-      console.log("Checked in:", { name, email, timestamp });
-      document.getElementById("status").innerText = "Check-in complete!";
+      const data = {
+        grade: document.getElementById('grade').value,
+        name: document.getElementById('studentName').value,
+        email: document.getElementById('studentEmail').value,
+        reason: document.getElementById('reason').value,
+        timestamp: new Date().toLocaleString()
+      };
+      alert("✅ Check-in submitted! (To be connected to Google Sheets)");
+      console.log(data);
+      // Submit logic to Google Sheets will be added here
+      this.reset();
+      document.getElementById('studentEmail').value = '';
     });
-
-    function startScanner() {
-      const qrReader = new Html5Qrcode("reader");
-      qrReader.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
-        (qrCodeMessage) => {
-          const timestamp = new Date().toISOString();
-          console.log("Scanned Pre-K–2 code:", qrCodeMessage, timestamp);
-          qrReader.stop();
-          document.getElementById("reader").innerHTML = "";
-          new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3").play();
-          document.getElementById("status").innerText = "Check-in complete!";
-        },
-        (errorMessage) => {
-          // optional: console.log("QR scan error:", errorMessage);
-        }
-      ).catch(err => {
-        document.getElementById("status").innerText = "Camera access denied or unavailable.";
-      });
-    }
   </script>
 </body>
 </html>
