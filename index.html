@@ -72,20 +72,20 @@
       <label for="grade">Grade:</label>
       <select id="grade" name="grade" required>
         <option value="" disabled selected>Select your grade</option>
-        <option>Pre-K</option>
-        <option>Kindergarten</option>
-        <option>1st</option>
-        <option>2nd</option>
-        <option>3rd</option>
-        <option>4th</option>
-        <option>5th</option>
-        <option>6th</option>
-        <option>7th</option>
-        <option>8th</option>
+        <option value="Pre-K">Pre-K</option>
+        <option value="Kindergarten">Kindergarten</option>
+        <option value="1st">1st</option>
+        <option value="2nd">2nd</option>
+        <option value="3rd">3rd</option>
+        <option value="4th">4th</option>
+        <option value="5th">5th</option>
+        <option value="6th">6th</option>
+        <option value="7th">7th</option>
+        <option value="8th">8th</option>
       </select>
 
       <label for="name">Student Name:</label>
-      <input type="text" id="name" name="name" placeholder="Start typing your name..." required />
+      <input type="text" id="name" name="name" placeholder="Type your full name..." autocomplete="off" required />
 
       <label for="email">Student Email:</label>
       <input type="email" id="email" name="email" placeholder="Email will appear..." readonly required />
@@ -98,22 +98,38 @@
   </div>
 
   <script>
-    // Sample student name-email mapping
-    const studentEmails = {
-      "Alice Johnson": "alice.johnson@metrocatholic.net",
-      "Ben Smith": "ben.smith@metrocatholic.net",
-      "Carla Lopez": "carla.lopez@metrocatholic.net",
-      // Add more as needed
+    const studentDirectory = {
+      "Pre-K": {
+        "Lily Adams": "lily.adams@metrocatholic.net",
+        "Noah Bell": "noah.bell@metrocatholic.net"
+      },
+      "1st": {
+        "Emma Clark": "emma.clark@metrocatholic.net",
+        "Liam Davis": "liam.davis@metrocatholic.net"
+      },
+      "2nd": {
+        "Ava Evans": "ava.evans@metrocatholic.net",
+        "Mason Foster": "mason.foster@metrocatholic.net"
+      }
+      // Add more grades and students as needed
     };
 
+    const gradeInput = document.getElementById('grade');
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
 
-    nameInput.addEventListener('input', () => {
-      const typedName = nameInput.value.trim();
-      const matchedEmail = studentEmails[typedName];
-      emailInput.value = matchedEmail || '';
-    });
+    function updateEmail() {
+      const grade = gradeInput.value;
+      const name = nameInput.value.trim();
+      if (studentDirectory[grade] && studentDirectory[grade][name]) {
+        emailInput.value = studentDirectory[grade][name];
+      } else {
+        emailInput.value = '';
+      }
+    }
+
+    nameInput.addEventListener('input', updateEmail);
+    gradeInput.addEventListener('change', updateEmail);
 
     document.getElementById('attendanceForm').addEventListener('submit', function(e) {
       e.preventDefault();
